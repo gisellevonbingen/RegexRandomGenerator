@@ -10,27 +10,6 @@ namespace RegexRandomGenerator
     {
         public static RegexRandomizer Randomizer = new RegexRandomizer() { TimesMinimumInsclusive = 2, TimesMaximumExclusive = 4 };
 
-        public static RegexNode ParseAndPrint(string input)
-        {
-            Console.WriteLine("==========");
-            var node = RegexNode.Parse(input);
-            Console.WriteLine(node);
-            return node;
-        }
-
-        public static RegexNode ParseAndRandom(string input)
-        {
-            var node = ParseAndPrint(input);
-
-            for (var i = 0; i < 10; i++)
-            {
-                var choice = node.ChoiceRandom(Randomizer);
-                Console.WriteLine($"{i}: {choice}");
-            }
-
-            return node;
-        }
-
         public static void Main(string[] args)
         {
             Test();
@@ -84,6 +63,27 @@ namespace RegexRandomGenerator
         {
             var test1 = ParseAndRandom(@"\d{3}-\d{4}-\d{3}");
             var test2 = ParseAndRandom(@"(0|(1(01*0)*1))*");
+        }
+
+        public static RegexNode ParseAndPrint(string input)
+        {
+            Console.WriteLine("==========");
+            var node = RegexNode.Parse(input);
+            Console.WriteLine(node);
+            return node;
+        }
+
+        public static RegexNode ParseAndRandom(string input)
+        {
+            var node = ParseAndPrint(input);
+
+            for (var i = 0; i < 10; i++)
+            {
+                var choice = node.ChoiceRandom(Randomizer);
+                Console.WriteLine($"{i}: {choice}");
+            }
+
+            return node;
         }
 
     }
