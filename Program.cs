@@ -19,6 +19,7 @@ namespace RegexRandomGenerator
         private static void Test()
         {
             var end = ParseAndPrint("]");
+            var escape = ParseAndPrint("\\\\_");
 
             var c1 = ParseAndPrint("\\d");
             var c2 = ParseAndPrint("\\.");
@@ -55,7 +56,7 @@ namespace RegexRandomGenerator
             var set6 = ParseAndPrint("[----0a^]");
             var set7 = ParseAndPrint("[-]");
             var set8 = ParseAndPrint("[^0-9]");
-            var set9 = ParseAndPrint("[a-zA-Z0-9+-\\_.]+");
+            var set9 = ParseAndPrint("[a-zA-Z0-9+-\\\\_.]+");
             var set10 = ParseAndPrint("(.[_a-z0-9-]+)*");
         }
 

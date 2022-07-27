@@ -334,7 +334,7 @@ namespace RegexRandomGenerator
                 set.Negative = true;
             }
 
-            var list = new List<RegexNodeString>();
+            var list = new List<RegexNode>();
 
             while (this.TryPeek(out var c) == true)
             {
@@ -345,12 +345,70 @@ namespace RegexRandomGenerator
                 }
                 else
                 {
-                    var patterns = this.NextPatterns(out var isEnd).ToArray();
-                    set.Patterns.AddRange(patterns);
+                    var ch = this.NextChar();
+                    list.Add(ch);
+                }
 
-                    if (isEnd == true)
+            }
+
+            if (list.Count < 3)
+            {
+                set.Patterns.AddRange(list.Select(n => this.ToSetPattern(n)));
+            }
+            else
+            {
+                var count = list.Count;
+
+                for (var i = 0; i < count; i++)
+                {
+                    var l = list[i + 0];
+                    var m = (i + 1 < count) ? list[i + 1] : null;
+                    var r = (i + 2 < count) ? list[i + 2] : null;
+                    var foundRange = false;
+
+                    if (l is RegexNodeString str1 && m is RegexNodeString str2 && r is RegexNodeString str3)
                     {
-                        break;
+                        var start = str1.Text[0];
+                        var delimiter = str2.Text[0];
+                        var end = str3.Text[0];
+
+                        if (delimiter == SetRangeDelimiter)
+                        {
+                            foundRange = true;
+
+                            if (start <= end)
+                            {
+                                set.Patterns.Add(new SetPattern(start, end));
+                            }
+                            else
+                            {
+                                throw new RegexSyntaxException($"SetPattern range is reversed : {start}{SetRangeDelimiter}{end}");
+                            }
+
+                            i += 2;
+                        }
+
+                    }
+
+                    if (foundRange == false)
+                    {
+                        set.Patterns.Add(this.ToSetPattern(l));
+
+                        if (i + 3 >= count)
+                        {
+                            if (m != null)
+                            {
+                                set.Patterns.Add(this.ToSetPattern(m));
+                            }
+
+                            if (r != null)
+                            {
+                                set.Patterns.Add(this.ToSetPattern(r));
+                            }
+
+                            break;
+                        }
+
                     }
 
                 }
@@ -360,93 +418,21 @@ namespace RegexRandomGenerator
             return set;
         }
 
-        private List<ISetPattern> NextPatterns(out bool isEnd)
+        private ISetPattern ToSetPattern(RegexNode node)
         {
-            isEnd = false;
-            var patterns = new List<ISetPattern>();
-            var c1 = this.NextChar();
-
-            if (c1 is ISetPattern pattern1)
+            if (node is ISetPattern pattern)
             {
-                patterns.Add(pattern1);
+                return pattern;
             }
-            else if (c1 is RegexNodeString str1)
+            else if (node is RegexNodeString str)
             {
-                var start = str1.Text[0];
-                var c2 = this.NextChar();
-
-                if (c2 is RegexNodeClass klass2)
-                {
-                    patterns.Add(new SetPattern(start));
-                    patterns.Add(klass2);
-                }
-                else if (c2 is RegexNodeString str2)
-                {
-                    var delimiter = str2.Text[0];
-
-                    if (delimiter == SetRangeDelimiter)
-                    {
-                        var c3 = this.NextChar();
-
-                        if (c3 is RegexNodeClass klass3)
-                        {
-                            patterns.Add(new SetPattern(start));
-                            patterns.Add(new SetPattern(delimiter));
-                            patterns.Add(klass3);
-                        }
-                        else if (c3 is RegexNodeString str3)
-                        {
-                            var end = str3.Text[0];
-
-                            if (end == SetSuffix)
-                            {
-                                patterns.Add(new SetPattern(start));
-                                patterns.Add(new SetPattern(delimiter));
-                            }
-                            else if (start <= end)
-                            {
-                                patterns.Add(new SetPattern(start, end));
-                            }
-                            else
-                            {
-                                throw new RegexSyntaxException($"SetPattern range is reversed : {start}{SetRangeDelimiter}{end}");
-                            }
-
-                        }
-                        else
-                        {
-                            throw new RegexSyntaxException($"Unexpected input : {c3}");
-                        }
-
-                    }
-                    else
-                    {
-                        patterns.Add(new SetPattern(start));
-
-                        if (delimiter != SetSuffix)
-                        {
-                            patterns.Add(new SetPattern(delimiter));
-                        }
-                        else
-                        {
-                            isEnd = true;
-                        }
-
-                    }
-
-                }
-                else
-                {
-                    throw new RegexSyntaxException($"Unexpected input : {c2}");
-                }
-
+                return new SetPattern(str.Text[0]);
             }
             else
             {
-                throw new RegexSyntaxException($"Unexpected input : {c1}");
+                throw new ArgumentException();
             }
 
-            return patterns;
         }
 
         protected RegexNodeGroup NextGroup()
