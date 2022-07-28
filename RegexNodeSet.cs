@@ -35,8 +35,15 @@ namespace RegexRandomGenerator
 
         public override string ChoiceRandom(RegexRandomizer randomizer)
         {
-            var pool = this.Patterns.SelectMany(p => p.GetChoiceablePool()).Distinct().ToArray();
-            var c = pool.GetRandom(randomizer.Random);
+            var pool = this.Patterns.SelectMany(p => p.GetChoiceablePool()).Distinct();
+
+            if (this.Negative == true)
+            {
+                pool = Enumerable2.InverseOnNormalChars(pool);
+            }
+
+            var computedPool = pool.ToArray();
+            var c = computedPool.GetRandom(randomizer.Random);
             return c.ToString();
         }
 
