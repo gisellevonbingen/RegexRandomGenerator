@@ -66,6 +66,8 @@ namespace RegexRandomGenerator
             var test1 = ParseAndRandom(@"\d{3}-\d{4}-\d{3}");
             var test2 = ParseAndRandom(@"(0|(1(01*0)*1))*");
             var test3 = ParseAndRandom(@"01[069]-\d\d\d\d?(-\d\d\d\d){2}");
+            var test4 = ParseAndRandom(@"안녕하세요 제 이름은 [김이박최황안][가-힇]{2} (입니다|일까요\?)");
+            var test5 = ParseAndRandom(@"가{10,}");
         }
 
         public static RegexNode ParseAndPrint(string input)
