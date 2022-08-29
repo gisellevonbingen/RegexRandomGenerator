@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace RegexRandomGenerator
@@ -68,6 +69,7 @@ namespace RegexRandomGenerator
             var test3 = ParseAndRandom(@"01[069]-\d\d\d\d?(-\d\d\d\d){2}");
             var test4 = ParseAndRandom(@"안녕하세요 제 이름은 [김이박최황안][가-힇]{2} (입니다|일까요\?)");
             var test5 = ParseAndRandom(@"가{10,}");
+            var test6 = ParseAndRandom(@"(void|char|int|double) [A-Za-z_]\w{8} \((int|char) [A-Za-z_]\w{3}(, (int|char) [A-Za-z_]\w{3}){1,2}\);");
         }
 
         public static RegexNode ParseAndPrint(string input)
@@ -75,17 +77,25 @@ namespace RegexRandomGenerator
             Console.WriteLine("==========");
             var node = RegexNode.Parse(input);
             Console.WriteLine(node);
+
             return node;
         }
 
         public static RegexNode ParseAndRandom(string input)
         {
             var node = ParseAndPrint(input);
+            var regex = new Regex(input);
 
             for (var i = 0; i < 10; i++)
             {
                 var choice = node.ChoiceRandom(Randomizer);
                 Console.WriteLine($"{i}: {choice}");
+
+                if (regex.IsMatch(choice) == false)
+                {
+                    throw new Exception();
+                }
+
             }
 
             return node;
